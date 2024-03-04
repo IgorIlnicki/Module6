@@ -1,6 +1,7 @@
 from collections import UserDict
 from functools import reduce
 import json
+import datetime
 class BaseClass:
     def __init__(self, value):
         self.value = value
@@ -17,10 +18,29 @@ class Phone(BaseClass):
         
 class Name(BaseClass):
     pass
+class Birthday(BaseClass):
+    def __init__(self, dayb):
+        print(f"day = {dayb}")
+        try:
+            # Додайте перевірку коректності даних
+            # та перетворіть рядок на об'єкт datetime
+            spec_data = datetime.datetime(year=int(dayb[1]), month=int(dayb[2]), day=int(dayb[3]))
+            dayb = spec_data
+            print(f"spec_date = {dayb}")
+        except ValueError:
+            print(f"Неправильне введення дати. Використовуйте шаблон: YYYY.MM.DD")
+            raise main()
+
 class Record: 
     def __init__(self, name):
         self.name = name
         self.phones = None
+        self.birthday = None
+
+    def add_date(self, args):
+        self.birthday = args
+        print(f"self.birthday = {self.birthday}")
+        Birthday(self.birthday)
 
     def add_phone(self, phon):
         self.phones = phon
@@ -41,6 +61,27 @@ class AddressBook(UserDict):  # Клас для зберігання та упр
             self.data1.update({name: phones})
         self.write_json(r'D:\Projects\Module6\Module6\A1.json')
         print (f'Контакт користувача додано.')
+
+    def add_birthday(self, name, birthday):
+        self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
+        if self.data1[name]:
+                self.data1.update({"birthday":birthday})
+                self.write_json(r'D:\Projects\Module6\Module6\A1.json')
+                print (f'День народження користувача додано.')
+        else:
+            print(f"Користувача {name} не знайдено: помилка вводу імені") 
+
+    # def add_contact(args, book: AddressBook):
+    #     name, phone, *_ = args
+    #     record = book.find(name)
+    #     message = "Contact updated."
+    #     if record is None:
+    #         record = Record(name)
+    #         book.add_record(record)
+    #         message = "Contact added."
+    #     if phone:
+    #         record.add_phone(phone)
+    #     return message
 
     def list(self):
         self.checit_json(r'D:\Projects\Module6\Module6\A1.json')
@@ -167,6 +208,7 @@ def main():
         while True:
             user_input = input("Введіть команду: ")
             command, *args = parse_input(user_input)
+            print(f"000 comand = {command} args = {args}")
             if command in ["close", "exit"]:
                 print("Good bye!")
                 break
@@ -188,6 +230,11 @@ def main():
                 record = Record(args[0])
                 record.add_phone(args[1])
                 addressBook.change_phone(record.name, record.phones)
+            elif command == "addbirthday":
+                print(f"   Ми тут")
+                record = Record(args[0])
+                record.add_date(args)  # birthday
+                addressBook.add_birthday(record.name, record.birthday)
             else:
                 print("Invalid command.")
 
